@@ -10,6 +10,7 @@ from pydoll.constants import Key
 
 load_dotenv()
 
+
 def to_bool(value: str | None, default: bool):
   if value is None:
     return default
@@ -29,14 +30,14 @@ class Config(NamedTuple):
 
 def read_config():
   return Config(
-    headless=to_bool(os.getenv('PYDOLL_HEADLESS'), False),
-    sandbox=to_bool(os.getenv('PYDOLL_SANDBOX'), False),
-    webgl=to_bool(os.getenv('PYDOLL_WEBGL'), False),
-    user_agent=os.getenv('PYDOLL_USERAGENT', ''),
-    chrome_path=os.getenv('PYDOLL_CHROME_PATH', ''),
+      headless=to_bool(os.getenv('PYDOLL_HEADLESS'), False),
+      sandbox=to_bool(os.getenv('PYDOLL_SANDBOX'), False),
+      webgl=to_bool(os.getenv('PYDOLL_WEBGL'), False),
+      user_agent=os.getenv('PYDOLL_USERAGENT', ''),
+      chrome_path=os.getenv('PYDOLL_CHROME_PATH', ''),
 
-    username=os.environ['MPC_USERNAME'],
-    password=os.environ['MPC_PASSWORD'],
+      username=os.environ['MPC_USERNAME'],
+      password=os.environ['MPC_PASSWORD'],
   )
 
 
@@ -59,19 +60,19 @@ async def main(refresh_project_id: str | None = None):
   async with Chrome(options) as browser:
     try:
       tab = await browser.start()
-      print('login')
+      print('Login')
       await login(tab, config)
       if refresh_project_id:
         await refresh_project(tab, refresh_project_id)
       else:
-        print('finding projects')
+        print('Finding projects')
         project_ids = await find_projects(tab)
         for i, project_id in enumerate(project_ids):
-          print(f'Refreshing {i + 1}/{len(project_ids)}')
+          print(f'Refreshing {i + 1}/{len(project_ids)}: {project_id}')
           await refresh_project(tab, project_id)
     finally:
       await browser.stop()
-      await asyncio.sleep(10000)
+      print('Done')
 
 
 async def login(tab: Tab, config: Config):
@@ -80,12 +81,12 @@ async def login(tab: Tab, config: Config):
   txt_email = await tab.find(id='txt_email')
   await txt_email.insert_text(config.username)
   await txt_email.press_keyboard_key(Key.ENTER)
-  await asyncio.sleep(1)
+  await asyncio.sleep(0.5)
 
   txt_password = await tab.find(id='txt_password')
   await txt_password.insert_text(config.password)
   await txt_password.press_keyboard_key(Key.ENTER)
-  await asyncio.sleep(1)
+  await asyncio.sleep(0.5)
 
   await tab.go_to('https://www.makeplayingcards.com/design/dn_temporary_designes.aspx')
 
@@ -124,11 +125,11 @@ async def refresh_project(tab: Tab, project_id: str):
   while True:
     try:
       await tab.go_to(f'https://www.makeplayingcards.com/design/dn_temporary_parse.aspx?id={project_id}&edit=Y')
-      await asyncio.sleep(1)
+      await asyncio.sleep(0.5)
       break
     except:
       print(f'Retrying {project_id}')
-      await asyncio.sleep(1)
+      await asyncio.sleep(0.5)
 
 
 asyncio.run(main())

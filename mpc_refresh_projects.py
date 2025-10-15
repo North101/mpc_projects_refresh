@@ -2,10 +2,13 @@ import asyncio
 import os
 from typing import NamedTuple
 
+from dotenv import load_dotenv
 from pydoll.browser import Chrome
 from pydoll.browser.options import ChromiumOptions
 from pydoll.browser.tab import Tab
 from pydoll.constants import Key
+
+load_dotenv()
 
 def to_bool(value: str | None, default: bool):
   if value is None:
